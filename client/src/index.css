@@ -34,6 +34,12 @@
             transition-all duration-200 text-sm placeholder:text-slate-400;
     }
 
+    /* Password fields with a custom show/hide control: hide Edge/IE built-in reveal (avoids two eye icons) */
+    input.no-native-password-reveal::-ms-reveal,
+    input.no-native-password-reveal::-ms-clear {
+        display: none;
+    }
+
     /* Table styles */
     .table-modern {
         @apply w-full text-left text-sm;
