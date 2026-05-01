@@ -16,11 +16,11 @@ const Employees = () => {
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
-    setEmployees(dummyEmployeeData);
+    setEmployees(dummyEmployeeData.filter((emp) => (selectedDepartment ? emp.department === selectedDepartment : emp)));
     setTimeout(() => {
       setLoading(false);
     }, 1000);
-  }, [])
+  }, [selectedDepartment])
 
   useEffect(() => {
     fetchEmployees();
