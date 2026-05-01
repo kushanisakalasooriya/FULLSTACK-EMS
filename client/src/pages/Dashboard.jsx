@@ -12,8 +12,8 @@ export const Dashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    //setData(dummyEmployeeDashboardData)
-    setData(dummyAdminDashboardData)
+    setData(dummyEmployeeDashboardData)
+    //setData(dummyAdminDashboardData)
     setTimeout(() => {
       setLoading(false);
     }, 1000);
