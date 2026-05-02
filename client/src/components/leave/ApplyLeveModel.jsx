@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { CalendarHeartIcon, FileText, Loader2, Send, X } from 'lucide-react';
+import api from '../../api/axios'
+import toast from 'react-hot-toast'
 
 const ApplyLeveModel = ({open, onClose, onSuccess}) => {
 
@@ -11,6 +13,19 @@ const ApplyLeveModel = ({open, onClose, onSuccess}) => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        setLoading(true);
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+        try {
+            await api.post("/leave", data);
+            toast.success("Leave request submitted successfully.");
+            onClose();
+            onSuccess?.();
+        } catch (error) {
+            toast.error(error.response?.data?.error || error.message || "Failed to submit leave request. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     if(!open) {
@@ -79,7 +94,7 @@ const ApplyLeveModel = ({open, onClose, onSuccess}) => {
                     <button type='button' onClick={onClose} className='btn-secondary flex-1'>
                         Cancel
                     </button>
-                    <button type='submit' onClick={onClose} disabled={loading} className='btn-primary flex-1 flex items-center justify-center gap-2'>
+                    <button type='submit' disabled={loading} className='btn-primary flex-1 flex items-center justify-center gap-2'>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         {loading ? "Submitting..." : "Submit"}
                     </button>

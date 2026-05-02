@@ -1,21 +1,35 @@
 import { useCallback, useEffect, useState } from "react";
-import { dummyAttendanceData } from "../assets/assets";
 import Loading from "../components/Loading";
 import CheckInButton from "../components/attendance/CheckInButton";
 import AttendanceStats from "../components/attendance/AttendanceStats";
 import AttendanceHistory from "../components/attendance/AttendanceHistory";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const Attendance = () => {
 
   const [history, setHistory] = useState([]);
+  const [todayRecord, setTodayRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(null);
 
   const fetchData = useCallback(async () => {
-    setHistory(dummyAttendanceData)
-    setTimeout(() => {
+    try {
+      const res = await api.get("/attendance");
+      setHistory(res.data.data || []);
+      setTodayRecord(res.data.todayRecord ?? null);
+      if (res.data.employee?.isDeleted) {
+        setIsDeleted(true);
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error fetching attendance data"
+      );
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   }, [])
 
   useEffect(() => {
@@ -25,13 +39,6 @@ const Attendance = () => {
   if (loading) {
     return <Loading/>
   }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const todayRecord = history.find((record) =>
-    new Date(record.date).toDateString() === today.toDateString()
-  );
 
   return (
     <div className="animate-fade-in">
@@ -45,7 +52,7 @@ const Attendance = () => {
           <p className="text-rose-600">Cannot update the clock in & out because youe employee record marks as deleted.</p>
         </div>
       ) : (
-        <div className="mb-8">
+        <div className="mb-8 relative min-h-[140px]">
           <CheckInButton todayRecord={todayRecord} onAction={fetchData} />
         </div>
       )}

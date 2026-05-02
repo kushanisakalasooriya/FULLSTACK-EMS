@@ -13,19 +13,25 @@ export const getEmployees = async (req, res) => {
             where.department = department;
         }
 
-        const employees = (await Employee.find(where)).toSorted({createdAt: -1}).populate('userId', 'email role').lean();
+        const employees = await Employee.find(where)
+            .populate("userId", "email role")
+            .sort({ createdAt: -1 })
+            .lean();
 
         const result = employees.map((emp) => ({
-                ...emp,
-                id: emp._id.toString(),
-                user: emp.userId ? {
-                    email: emp.userId.email,
-                    role: emp.userId.role,
-                } : null
+            ...emp,
+            id: emp._id.toString(),
+            user: emp.userId
+                ? {
+                      email: emp.userId.email,
+                      role: emp.userId.role,
+                  }
+                : null,
         }));
 
-        return res.status(200).json(employees);
+        return res.status(200).json(result);
     } catch (error) {
+        console.error("getEmployees:", error);
         return res.status(500).json({ error: "Failed to fetch employees" });
     }
 };
@@ -64,7 +70,7 @@ export const createEmployees = async (req, res) => {
             bio: bio || "",
         });
 
-        return res.status(201).json(savedEmployee);
+        return res.status(201).json(employee);
     } catch (error) {
         if(error.code === 11000){
             return res.status(400).json({ error: "Email already exists" });

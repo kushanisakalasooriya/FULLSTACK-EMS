@@ -5,6 +5,6 @@ import { protect } from "../middleware/auth.js";
 const profileRouter = Router();
 
 profileRouter.get('/', protect, getProfile);
-profileRouter.post('/', protect, updateProfile);
+profileRouter.put('/', protect, updateProfile);
 
 export default profileRouter;

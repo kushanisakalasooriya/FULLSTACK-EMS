@@ -1,5 +1,7 @@
 import { Loader2, Plus, X } from 'lucide-react'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
+import api from '../../api/axios'
 
 const GeneratePayslipForm = ({employees, onSuccess}) => {
 
@@ -17,6 +19,21 @@ const GeneratePayslipForm = ({employees, onSuccess}) => {
 
     const handleSubmit = async(e) => {
         e.preventDefault()
+        setIsLoading(true);
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            await api.post("/payslips", data);
+            toast.success("Payslip generated");
+            setIsOpen(false);
+            onSuccess();
+        } catch (error) {
+            const msg = error.response?.data?.error || error.message || "Failed to generate payslip";
+            toast.error(msg);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
   return (
@@ -33,7 +50,7 @@ const GeneratePayslipForm = ({employees, onSuccess}) => {
                 {/* select Employee */}
                 <div className='mb-4'>
                     <label className='block text-sm font-medium text-slate-700 mb-2'>Employee</label>
-                    <select className='input-field' required>
+                    <select name="employeeId" className='input-field' required>
                         <option value="">Select Employee</option>
                         {employees.map((employee) => (
                             <option key={employee.id} value={employee.id}>
@@ -48,7 +65,7 @@ const GeneratePayslipForm = ({employees, onSuccess}) => {
                     <div className='flex gap-4'>
                         <div className='flex-1 min-w-0'>
                             <label className='block text-sm font-medium text-slate-700 mb-2'>Month</label>
-                            <select className='input-field w-full' required>
+                            <select name="month" className='input-field w-full' required>
                                 <option value="">Month</option>
                                 {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                                     <option key={month} value={month}>
@@ -74,12 +91,12 @@ const GeneratePayslipForm = ({employees, onSuccess}) => {
                 <div className='grid grid-cols-2 gap-4'>
                     <div className='mb-4'>
                         <label className='block text-sm font-medium text-slate-700 mb-2'>Allowance</label>
-                        <input type="number" name='allowance' className='input-field' placeholder='Enter allowance' />
+                        <input type="number" name='allowances' className='input-field' placeholder='Enter allowance' defaultValue="0" />
                     </div>
 
                     <div className='mb-6'>
                         <label className='block text-sm font-medium text-slate-700 mb-2'>Deductions</label>
-                        <input type="number" name='deductions' className='input-field' placeholder='Enter deductions' />
+                        <input type="number" name='deductions' className='input-field' placeholder='Enter deductions' defaultValue="0" />
                     </div>
                 </div>
 

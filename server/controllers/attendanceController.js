@@ -68,6 +68,7 @@ export const clockInOut = async (req, res) => {
             exsiting.workingHours = workingHours;
             exsiting.dayType = dayType;
             await exsiting.save();
+            return res.status(200).json({ success: true, type: "CHECK_OUT", data: exsiting });
         }
         else {
             return res.status(200).json({ success: true, type:"CHECK_OUT", data: exsiting });
@@ -93,8 +94,16 @@ export const getAttendance = async (req, res) => {
         const limit = parseInt(req.query.limit) || 30;
         const history = await Attendance.find({ employeeId: employee._id }).sort({ date: -1 }).limit(limit);
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayRecord = await Attendance.findOne({
+            employeeId: employee._id,
+            date: today,
+        });
+
         return res.status(200).json({
             data: history,
+            todayRecord,
             employee: {
                 isDeleted: employee.isDeleted
             }

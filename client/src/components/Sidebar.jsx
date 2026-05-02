@@ -1,24 +1,38 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { dummyProfileData } from "../assets/assets";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import { CalendarRangeIcon, ChevronRightIcon, DollarSignIcon, FileTextIcon, LayoutGridIcon, LogOutIcon, MenuIcon, SettingsIcon, UserIcon, XIcon } from "lucide-react";
 
 const Sidebar = () => {
 
     const { pathname } = useLocation()
+    const navigate = useNavigate()
+    const { user, logout } = useAuth()
     const [userName, setUserName] = useState("")
     const [mobileOpen, setMobileOpen] = useState(false)
 
     useEffect(() => {
-        setUserName(dummyProfileData.firstName + " " + dummyProfileData.lastName)
-    }, [])
+        let cancelled = false
+        ;(async () => {
+            try {
+                const { data } = await api.get("/profile")
+                if (cancelled) return
+                const name = [data?.firstName, data?.lastName].filter(Boolean).join(" ").trim()
+                setUserName(name || user?.email || "")
+            } catch {
+                if (!cancelled) setUserName(user?.email || "")
+            }
+        })()
+        return () => { cancelled = true }
+    }, [user?.email])
 
     // close mobile sidebar on route change
     useEffect(() => {
         setMobileOpen(false)
     }, [pathname])
 
-    const role = "" || "EMPLOYEE";
+    const role = user?.role || "EMPLOYEE";
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard" , icon: LayoutGridIcon},
@@ -29,7 +43,8 @@ const Sidebar = () => {
     ]
 
     const handleLogout = () => {
-        window.location.href = "/login"
+        logout()
+        navigate("/login")
     }
 
     const sidebarContent = (
