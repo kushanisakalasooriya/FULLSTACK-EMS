@@ -1,7 +1,6 @@
 import Employee from "../models/Employee.js";
 import leaveApplication from "../models/LeaveApplication.js";
 
-
 // create leave
 // POST /api/leaves
 export const createLeave = async (req, res) => {
