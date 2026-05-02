@@ -29,7 +29,7 @@ export const login = async (req, res) => {
 
         if(!isValid){
             return res.status(401).json({ error: "invalid credentials" });
-        }
+        } 
 
         const payLoad = {
             userId: user._id.toString(),
