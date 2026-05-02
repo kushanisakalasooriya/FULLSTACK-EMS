@@ -1,5 +1,5 @@
-import Employee from "../models/Employee";
-import User from "../models/User";
+import Employee from "../models/Employee.js";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 
 //Get Employee
