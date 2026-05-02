@@ -1,6 +1,8 @@
+import api from '../../api/axios';
 import { Check, Loader2, X } from 'lucide-react';
-import React from 'react'
+import React from 'react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const LeaveHistory = ({ leaves = [], isAdmin = false, onUpdate }) => {
 
@@ -8,10 +10,15 @@ const LeaveHistory = ({ leaves = [], isAdmin = false, onUpdate }) => {
 
     const handleStatusUpdate = async (id, status) => {
         setProcessing(id);
-        if (onUpdate) {
-            await onUpdate(id, status);
+        try {
+            await api.patch(`/leave/${id}`, {status});
+            toast.success("Leave request updated successfully.");
+            onUpdate?.();
+        } catch (error) {
+            toast.error("Failed to update leave request.");
+        } finally {
+            setProcessing(null);
         }
-        setProcessing(null);
     }
 
     return (

@@ -4,22 +4,28 @@ import Loading from "../components/Loading"
 import { Lock } from "lucide-react"
 import ProfileForm from "../components/ProfileForm"
 import ChangePasswordModel from "../components/ChangePasswordModel"
+import { useAuth } from "../context/AuthContext"
+import api from "../api/axios"
 
 const Settings = () => {
-
+  const {user} = useAuth();
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showPasswordModel, setShowPasswordModel] = useState(false)
   const fetchProfile = async() => {
-    setProfile(dummyProfileData)
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000);
+    try {
+      const res = await api.get("/profile");
+      setProfile(res.data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [user])
 
   if(loading) {
     return <Loading />

@@ -17,11 +17,14 @@ export const login = async (req, res) => {
             return res.status(401).json({ error: "invalid credentials" });
         }
         
-        if (role_type === "admin" && role_type !== "ADMIN") {
+        const portal =
+            typeof role_type === "string" ? role_type.toLowerCase() : "";
+
+        if (portal === "admin" && user.role !== "ADMIN") {
             return res.status(401).json({ error: "Not authorized as admin" });
         }
 
-        if (role_type === "employee" && role_type !== "EMPLOYEE") {
+        if (portal === "employee" && user.role !== "EMPLOYEE") {
             return res.status(401).json({ error: "Not authorized as employee" });
         }
 
@@ -76,7 +79,7 @@ export const changePassword = async (req, res) => {
         }
 
         const hashed = await bcrypt.hash(newPassword, 10);
-        await user.findByIdAndUpdate(session.userId, { password: hashed });
+        await User.findByIdAndUpdate(session.userId, { password: hashed });
 
         return res.status(200).json({ success: true, message: "Password changed successfully" });
     } catch (error) {

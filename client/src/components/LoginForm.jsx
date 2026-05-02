@@ -1,7 +1,9 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { use, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import LoginLeftSide from "./LoginLeftSide"
 import { ArrowLeftIcon, EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react"
+import toast from "react-hot-toast"
+import { useAuth } from "../context/AuthContext"
 
 const LoginForm = ({role, title, subtitle}) => {
 
@@ -10,9 +12,22 @@ const LoginForm = ({role, title, subtitle}) => {
   const [ShowPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const{login} = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      await login(email, password, role);
+      navigate("/dashboard")
+    } catch (error) {
+      toast.error(error.response?.data?.error || error.message || "Login failed. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

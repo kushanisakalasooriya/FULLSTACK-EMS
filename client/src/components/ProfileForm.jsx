@@ -1,5 +1,7 @@
 import { Loader2, Save, User } from 'lucide-react'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
+import api from '../api/axios'
 
 const ProfileForm = ({initialData, onSuccess}) => {
 
@@ -9,6 +11,21 @@ const ProfileForm = ({initialData, onSuccess}) => {
 
     const handleSubmit = async(e) => {
         e.preventDefault()
+        setLoading(true);
+        setError("");
+        setMessage("");
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            await api.put("/profile", data);
+            setMessage("Profile updated successfully.");
+            onSuccess?.();
+        } catch (error) {
+            setError(error.response?.data?.error || error.message || "Failed to update profile. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     }
 
   return (

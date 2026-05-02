@@ -36,7 +36,7 @@ export const updateProfile = async (req, res) => {
         if(!employee) {
             return res.status(400).json({ error: "Employee profile not found for the authenticated user" })
         } 
-        if(!employee.isDeleted) {
+        if (employee.isDeleted) {
             return res.status(403).json({ error: "your account is deactivated. you cannot update your profile" })
         } 
 

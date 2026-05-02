@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { dummyPayslipData } from "../assets/assets";
 import Loading from "../components/Loading";
+import api from "../api/axios";
+
+function formatMoney(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toLocaleString() : "—";
+}
 
 const PrintPaySlip = () => {
 
@@ -10,10 +15,14 @@ const PrintPaySlip = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(()=> {
-    setPayslip(dummyPayslipData.find((p) => p._id === (id)))
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000);
+    api.get(`/payslips/${id}`).then(res => {
+      const payload = res.data?.result ?? res.data;
+      setPayslip(payload && typeof payload === "object" ? payload : null);
+    }).catch(error => {
+      setPayslip(null);
+    }).finally(() => {
+      setLoading(false);
+    })
   },[id])
 
   if(loading) {
@@ -74,19 +83,19 @@ const PrintPaySlip = () => {
           <tbody>
             <tr className="border-t border-slate-100">
               <td className="py-3 px-4 text-slate-700">Basic Salary</td>
-              <td className="py-3 px-4 text-right text-slate-700 font-medium">${payslip.basicSalary?.toLocaleString()}</td>
+              <td className="py-3 px-4 text-right text-slate-700 font-medium">${formatMoney(payslip.basicSalary)}</td>
             </tr>
             <tr className="border-t border-slate-100">
               <td className="py-3 px-4 text-slate-700">Allowances</td>
-              <td className="py-3 px-4 text-right text-slate-700 font-medium">+${payslip.allowances?.toLocaleString()}</td>
+              <td className="py-3 px-4 text-right text-slate-700 font-medium">+${formatMoney(payslip.allowances)}</td>
             </tr>
             <tr className="border-t border-slate-100">
               <td className="py-3 px-4 text-slate-700">Deductions</td>
-              <td className="py-3 px-4 text-right text-slate-700 font-medium">-${payslip.deductions?.toLocaleString()}</td>
+              <td className="py-3 px-4 text-right text-slate-700 font-medium">-${formatMoney(payslip.deductions)}</td>
             </tr>
             <tr className="border-t-2 border-slate-200 bg-slate-50">
               <td className="py-3 px-4 text-slate-700">Net Salary</td>
-              <td className="py-3 px-4 text-right text-slate-700 font-bold text-slate-900 text-lg">${payslip.netSalary?.toLocaleString()}</td>
+              <td className="py-3 px-4 text-right text-slate-700 font-bold text-slate-900 text-lg">${formatMoney(payslip.netSalary)}</td>
             </tr>
           </tbody>
         </table>

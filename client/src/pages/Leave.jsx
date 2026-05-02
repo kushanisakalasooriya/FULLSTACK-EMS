@@ -1,24 +1,34 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { dummyLeaveData } from '../assets/assets';
+import api from '../api/axios'
+import toast from 'react-hot-toast'
 import Loading from '../components/Loading';
 import { PalmtreeIcon, PlusIcon, ThermometerIcon, UmbrellaIcon } from 'lucide-react';
 import LeaveHistory from '../components/leave/leaveHistory';
 import ApplyLeveModel from '../components/leave/ApplyLeveModel';
+import { useAuth } from '../context/AuthContext';
 
 const Leave = () => {
-  const  [leaves, setLeaves] = useState([]);
+  const {user} = useAuth();
+  const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModel, setShowModel] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const isAdmin = false;
+  const isAdmin = user?.role === "ADMIN";
 
-  const fetchLeaves = useCallback(() => {
-    setLeaves(dummyLeaveData);
-    setTimeout(() => {
+  const fetchLeaves = useCallback(async () => {
+    try {
+      const res = await api.get("/leave");
+      setLeaves(res.data.data || []);
+      if (res.data.employee?.isDeleted) {
+        setIsDeleted(true);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || error.message || "Failed to fetch leave data. Please try again.");
+    } finally {
       setLoading(false);
-    }, 1000)
-  }, [])
+    }
+  }, []);
 
   useEffect(()=>{
     fetchLeaves()
