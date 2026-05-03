@@ -1,4 +1,4 @@
-At the top there is a Project description (for GitHub) section that includes:
+
 
 Stack: React, Vite, Tailwind CSS, Express, MongoDB, JWT, bcrypt password hashing
 Email / jobs: Inngest, Nodemailer, Brevo
